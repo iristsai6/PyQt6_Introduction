@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyQt6 UI 與 QSS 設計指南</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 font-sans transition-colors duration-300">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-code text-lg"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-lg tracking-tight">PyQt6 UI & QSS 指南</span>
+                    <span class="hidden sm:inline-block text-xs ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-medium">v7.0 自訂對話框版</span>
+                </div>
+            </div>
+            
+            <nav class="hidden lg:flex items-center space-x-6 text-sm font-medium text-slate-600 dark:text-slate-300">
+                <a href="#home-hero" onclick="showAllSections()" class="hover:text-blue-600 dark:hover:text-blue-400 transition">首頁總覽</a>
+                <a href="#playground" onclick="showAllSections()" class="hover:text-blue-600 dark:hover:text-blue-400 transition">主題風格預覽</a>
+                <a href="#modern" onclick="showAllSections()" class="hover:text-blue-600 dark:hover:text-blue-400 transition">視覺技巧</a>
+                <a href="#directory" onclick="focusSection('directory')" class="text-blue-600 dark:text-blue-400 font-bold transition">元件分類資料庫</a>
+                <a href="#syntax" onclick="focusSection('syntax')" class="text-blue-600 dark:text-blue-400 font-bold transition">QSS 核心語法</a>
+            </nav>
+
+            <div class="flex items-center space-x-3">
+                <button id="themeToggle" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition" aria-label="切換主題">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:inline-block text-amber-400"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home-hero" class="relative overflow-hidden py-16 lg:py-24 bg-gradient-to-b from-blue-50/50 via-slate-50 to-white dark:from-slate-900 dark:via-slate-950 dark:to-slate-950 border-b border-slate-200/60 dark:border-slate-800/60">
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200/60 dark:border-blue-800/60 text-blue-600 dark:text-blue-400 text-xs font-semibold mb-4 shadow-sm">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> 原生風格模擬系統
+            </div>
+            <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-4">
+                打造專業級的 <span class="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">PyQt6 視覺介面</span>
+            </h1>
+            <p class="max-w-2xl mx-auto text-base sm:text-lg text-slate-600 dark:text-slate-400 mb-8">
+                完美對應 PyQt6 原生視窗與對話框彈窗外觀，讓網頁互動模擬與真實 Python 程式碼完全契合。
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#directory" onclick="focusSection('directory')" class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-lg shadow-blue-600/30 transition flex items-center gap-2">
+                    <i class="fa-solid fa-database"></i> 進入元件分類資料庫
+                </a>
+                <a href="#syntax" onclick="focusSection('syntax')" class="px-6 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium transition shadow-sm">
+                    查看 QSS 核心語法
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-24">
+
+        <!-- 1. 頂部大預覽區 (全域風格展示) -->
+        <section id="playground" class="page-section scroll-mt-24">
+            <div class="border-l-4 border-blue-600 pl-4 mb-8">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">主題風格預覽區</h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">點擊下方不同風格主題，即時預覽 PyQt6 元件外觀變化[cite: 5]</p>
+            </div>
+
+            <div class="flex flex-wrap gap-3 mb-8">
+                <button onclick="setTheme('tech')" id="btn-tech" class="px-5 py-2.5 rounded-xl font-medium text-sm transition flex items-center gap-2 bg-blue-600 text-white shadow-md shadow-blue-600/20">
+                    <i class="fa-solid fa-microchip"></i> 科技藍 (Tech Blue)
+                </button>
+                <button onclick="setTheme('minimal')" id="btn-minimal" class="px-5 py-2.5 rounded-xl font-medium text-sm transition flex items-center gap-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <i class="fa-solid fa-circle"></i> 極簡黑白 (Minimal Dark)
+                </button>
+                <button onclick="setTheme('warm')" id="btn-warm" class="px-5 py-2.5 rounded-xl font-medium text-sm transition flex items-center gap-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <i class="fa-solid fa-mug-hot"></i> 溫潤暖色 (Warm Orange)[cite: 5]
+                </button>
+            </div>
+
+            <div id="previewContainer" class="rounded-3xl p-6 sm:p-10 border transition-all duration-300 bg-slate-900 text-slate-100 border-blue-500/40 shadow-2xl">
+                <div class="flex items-center justify-between pb-6 mb-6 border-b border-slate-800">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 rounded-full bg-rose-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                        <span id="windowTitle" class="text-xs font-mono text-slate-400 ml-2">PyQt6 App - 科技藍風格</span>
+                    </div>
+                    <div class="text-xs font-mono px-3 py-1 rounded-full bg-slate-800 text-slate-300" id="themeBadge">
+                        Active: Tech Blue
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">文字輸入測試 (QLINEEDIT)</label>
+                            <input type="text" id="mockInput" value="請輸入專案名稱..." class="w-full px-4 py-3 rounded-xl border transition text-sm focus:outline-none bg-slate-950 border-slate-700 text-slate-100 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">操作按鈕預覽 (QPUSHBUTTON)</label>
+                            <div class="flex gap-3">
+                                <button id="mockBtnPrimary" class="flex-1 py-3 px-4 rounded-xl font-medium text-sm transition shadow-lg bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30">確認送出</button>
+                                <button id="mockBtnSecondary" class="py-3 px-6 rounded-xl font-medium text-sm transition border bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200">取消</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">進度條狀態 (QPROGRESSBAR)</label>
+                            <div class="w-full h-4 rounded-full bg-slate-800 overflow-hidden p-0.5">
+                                <div id="mockProgressBar" class="h-full rounded-full bg-blue-500 transition-all duration-500" style="width: 75%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-950 rounded-2xl p-6 border border-slate-800 font-mono text-xs overflow-x-auto shadow-inner">
+                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800/80 text-slate-400">
+                            <span>對應的 QSS 樣式表設定</span>
+                            <i class="fa-solid fa-code"></i>
+                        </div>
+                        <pre id="qssCodeOutput" class="text-blue-400 leading-relaxed">
+/* 科技藍風格 QSS */
+QPushButton {
+    background-color: #2563eb;
+    color: #ffffff;
+    border-radius: 8px;
+    font-weight: bold;
+    padding: 10px;
+}
+QPushButton:hover {
+    background-color: #1d4ed8;
+}
+QLineEdit {
+    border: 1.5px solid #3b82f6;
+    border-radius: 8px;
+    background-color: #020617;
+    color: #ffffff;
+    padding: 8px;
+}
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 現代化視覺風格技巧 -->
+        <section id="modern" class="page-section scroll-mt-24">
+            <div class="border-l-4 border-blue-600 pl-4 mb-8">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">現代化視覺風格技巧</h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">漸層背景、圓角、陰影與 Dark/Light Mode 切換架構[cite: 7]</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center mb-4"><i class="fa-solid fa-circle-half-stroke"></i></div>
+                    <h4 class="font-bold text-slate-900 dark:text-white mb-2">多佈局動態切換</h4>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">透過載入不同的 QSS 檔案支援系統黑夜模式。</p>
+                </div>
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div class="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-950/60 text-amber-600 flex items-center justify-center mb-4"><i class="fa-solid fa-paintbrush"></i></div>
+                    <h4 class="font-bold text-slate-900 dark:text-white mb-2">豐富的漸層支援</h4>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">支援 <code class="text-xs bg-slate-100 dark:bg-slate-800 px-1 font-mono">qlineargradient</code> 建立色彩過渡。</p>
+                </div>
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-950/60 text-purple-600 flex items-center justify-center mb-4"><i class="fa-solid fa-layer-group"></i></div>
+                    <h4 class="font-bold text-slate-900 dark:text-white mb-2">陰影與特效</h4>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">搭配陰影特效提升整體視窗的立體層次感。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. PyQt6 完整元件分類資料庫 -->
+        <section id="directory" class="page-section scroll-mt-24">
+            <div class="border-l-4 border-blue-600 pl-4 mb-6">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">PyQt6 完整元件分類資料庫</h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">點擊下方分類分頁或左側具體元件按鈕，右側將即時連動顯示互動預覽與程式碼 (Code)</p>
+            </div>
+
+            <div class="flex flex-wrap gap-2 mb-6 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <button class="tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold transition active bg-blue-600 text-white shadow-sm" onclick="switchCategoryTab(event, 'tab-windows', 'windows')">1. 頂層視窗與對話框</button>
+                <button class="tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" onclick="switchCategoryTab(event, 'tab-layouts', 'layouts')">2. 版面配置管理器</button>
+                <button class="tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" onclick="switchCategoryTab(event, 'tab-buttons', 'buttons')">3. 按鈕類元件</button>
+                <button class="tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" onclick="switchCategoryTab(event, 'tab-inputs', 'inputs')">4. 輸入與數值調整</button>
+                <button class="tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" onclick="switchCategoryTab(event, 'tab-displays', 'displays')">5. 顯示類元件</button>
+                <button class="tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" onclick="switchCategoryTab(event, 'tab-containers', 'containers')">6. 容器與版面群組</button>
+                <button class="tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" onclick="switchCategoryTab(event, 'tab-views', 'views')">7. 資料檢視與清單</button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- 左側：表格清單區 -->
+                <div class="lg:col-span-7 bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+                    
+                    <!-- Tab 1 -->
+                    <div id="tab-windows" class="tab-content active space-y-4">
+                        <h3 class="text-xl font-bold text-blue-600 dark:text-blue-400 border-b border-slate-100 dark:border-slate-800 pb-3">頂層視窗與對話框 (Top-level Windows & Dialogs)</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 dark:bg-slate-950/60 text-xs uppercase tracking-wider text-slate-500">
+                                        <th class="p-3.5 border-b border-slate-200 dark:border-slate-800">類別名稱 (CLASS)</th>
+                                        <th class="p-3.5 border-b border-slate-200 dark:border-slate-800">說明與常見用途</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm divide-y divide-slate-100 dark:divide-slate-800/60">
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QMainWindow')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QMainWindow</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">標準主視窗，內建選單列、工具列、狀態列與中央核心區域。</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QWidget')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QWidget</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">基礎視窗元件，所有 UI 元素的基底類別，也可作為獨立視窗。</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QDialog')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QDialog</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">標準對話框視窗，常用於設定、確認或子表單流程。</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QMessageBox')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QMessageBox</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">系統訊息提示框（警告、確認、錯誤彈窗）。[cite: 8]</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QFileDialog')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QFileDialog</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">檔案與資料夾選取對話框（開啟/儲存檔案）。[cite: 8]</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2 -->
+                    <div id="tab-layouts" class="tab-content hidden space-y-4">
+                        <h3 class="text-xl font-bold text-blue-600 dark:text-blue-400 border-b border-slate-100 dark:border-slate-800 pb-3">版面配置管理器 (Layout Managers)</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 dark:bg-slate-950/60 text-xs uppercase tracking-wider text-slate-500">
+                                        <th class="p-3.5 border-b border-slate-200 dark:border-slate-800">類別名稱 (CLASS)</th>
+                                        <th class="p-3.5 border-b border-slate-200 dark:border-slate-800">說明與常見用途</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm divide-y divide-slate-100 dark:divide-slate-800/60">
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QVBoxLayout')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QVBoxLayout</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">垂直線性佈局（由上而下依序排列）。</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QHBoxLayout')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QHBoxLayout</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">水平線性佈局（由左而右依序排列）。</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QGridLayout')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QGridLayout</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">二維網格佈局（以列、欄座標精確定位）。</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3 -->
+                    <div id="tab-buttons" class="tab-content hidden space-y-4">
+                        <h3 class="text-xl font-bold text-blue-600 dark:text-blue-400 border-b border-slate-100 dark:border-slate-800 pb-3">按鈕類元件 (Buttons)</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 dark:bg-slate-950/60 text-xs uppercase tracking-wider text-slate-500">
+                                        <th class="p-3.5 border-b border-slate-200 dark:border-slate-800">類別名稱 (CLASS)</th>
+                                        <th class="p-3.5 border-b border-slate-200 dark:border-slate-800">說明與常見用途</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm divide-y divide-slate-100 dark:divide-slate-800/60">
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QPushButton')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QPushButton</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">標準命令按鈕，支援文字與圖示。</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QToolButton')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QToolButton</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">工具列按鈕（通常搭配圖示與選單使用）。</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QCheckBox')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QCheckBox</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">核取方塊（可獨立勾選多個選項或半選狀態）。</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 4 -->
+                    <div id="tab-inputs" class="tab-content hidden space-y-4">
+                        <h3 class="text-xl font-bold text-blue-600 dark:text-blue-400 border-b border-slate-100 dark:border-slate-800 pb-3">輸入與數值調整元件 (Input Widgets)</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 dark:bg-slate-950/60 text-xs uppercase tracking-wider text-slate-500">
+                                        <th class="p-3.5 border-b border-slate-200 dark:border-slate-800">類別名稱 (CLASS)</th>
+                                        <th class="p-3.5 border-b border-slate-200 dark:border-slate-800">說明與常見用途</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm divide-y divide-slate-100 dark:divide-slate-800/60">
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QLineEdit')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QLineEdit</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">單行文字輸入框（支援密碼遮罩、提示字串）。</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QSlider')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QSlider</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">滑動條（用於音量、進度等連續數值調整）。</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 5 -->
+                    <div id="tab-displays" class="tab-content hidden space-y-4">
+                        <h3 class="text-xl font-bold text-blue-600 dark:text-blue-400 border-b border-slate-100 dark:border-slate-800 pb-3">顯示類元件 (Display Widgets)</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 dark:bg-slate-950/60 text-xs uppercase tracking-wider text-slate-500">
+                                        <th class="p-3.5 border-b border-slate-200 dark:border-slate-800">類別名稱 (CLASS)</th>
+                                        <th class="p-3.5 border-b border-slate-200 dark:border-slate-800">說明與常見用途</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm divide-y divide-slate-100 dark:divide-slate-800/60">
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QLabel')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QLabel</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">標籤元件（顯示純文字、富文本 HTML、圖片或 GIF 動畫）。</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QProgressBar')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QProgressBar</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">進度條（百分比或動態讀取條）。</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 6 -->
+                    <div id="tab-containers" class="tab-content hidden space-y-4">
+                        <h3 class="text-xl font-bold text-blue-600 dark:text-blue-400 border-b border-slate-100 dark:border-slate-800 pb-3">容器與版面群組元件 (Containers)</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 dark:bg-slate-950/60 text-xs uppercase tracking-wider text-slate-500">
+                                        <th class="p-3.5 border-b border-slate-200 dark:border-slate-800">類別名稱 (CLASS)</th>
+                                        <th class="p-3.5 border-b border-slate-200 dark:border-slate-800">說明與常見用途</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm divide-y divide-slate-100 dark:divide-slate-800/60">
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QGroupBox')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QGroupBox</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">帶有邊框與標題的群組區塊。</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QTabWidget')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QTabWidget</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">分頁標籤容器。</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 7 -->
+                    <div id="tab-views" class="tab-content hidden space-y-4">
+                        <h3 class="text-xl font-bold text-blue-600 dark:text-blue-400 border-b border-slate-100 dark:border-slate-800 pb-3">資料檢視與清單元件 (Item Views & Lists)</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 dark:bg-slate-950/60 text-xs uppercase tracking-wider text-slate-500">
+                                        <th class="p-3.5 border-b border-slate-200 dark:border-slate-800">類別名稱 (CLASS)</th>
+                                        <th class="p-3.5 border-b border-slate-200 dark:border-slate-800">說明與常見用途</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm divide-y divide-slate-100 dark:divide-slate-800/60">
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QTableWidget')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QTableWidget</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">試算表風格的行列表格檢視。</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3.5"><button onclick="selectComponent('QTreeWidget')" class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-mono font-semibold hover:bg-blue-600 hover:text-white transition shadow-sm">QTreeWidget</button></td>
+                                        <td class="p-3.5 text-slate-600 dark:text-slate-300">階層式樹狀檢視（適合檔案總管、目錄樹）。</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 右側：即時互動預覽與 Code 顯示區 -->
+                <div class="lg:col-span-5 bg-slate-900 text-slate-100 rounded-3xl p-6 border border-blue-500/30 shadow-xl sticky top-24 space-y-6">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
+                            <span id="rightPanelTitle" class="text-xs font-mono text-blue-400 font-bold uppercase tracking-wider">右側即時互動與 CODE：QMainWindow</span>
+                        </div>
+                        <span class="text-xs font-mono bg-slate-800 text-slate-300 px-2.5 py-1 rounded-full">Live Code</span>
+                    </div>
+
+                    <!-- 互動渲染畫面 -->
+                    <div class="space-y-2">
+                        <span class="text-xs text-slate-400 font-mono">畫面渲染效果</span>
+                        <div id="componentPreviewBox" class="p-6 bg-slate-950 rounded-2xl border border-slate-800 flex flex-col items-center justify-center min-h-[120px]">
+                            <!-- 預設：QMainWindow 預覽 -->
+                            <div class="text-center space-y-2 w-full">
+                                <div class="p-3 bg-slate-900 rounded-xl border border-slate-700 flex items-center justify-between">
+                                    <span class="text-xs font-semibold">QMainWindow 主視窗</span>
+                                    <button onclick="openCustomDialog('dialog')" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded text-xs transition">彈窗</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 程式碼 (Code) 顯示區 -->
+                    <div class="space-y-2">
+                        <span class="text-xs text-slate-400 font-mono">對應的 Python / QSS 程式碼</span>
+                        <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800 font-mono text-xs overflow-x-auto shadow-inner">
+                            <pre id="codeSnippetBox" class="text-blue-400 leading-relaxed">
+from PyQt6.QtWidgets import QApplication, QMainWindow
+import sys
+
+app = QApplication(sys.argv)
+window = QMainWindow()
+window.setWindowTitle("Main Window")
+window.resize(400, 300)
+window.show()
+sys.exit(app.exec())
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 4. QSS 核心語法與選擇器 -->
+        <section id="syntax" class="page-section scroll-mt-24">
+            <div class="border-l-4 border-blue-600 pl-4 mb-8">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">QSS 核心語法與選擇器</h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">掌握類別選擇器、ID 與各種偽狀態 (Pseudo-states)[cite: 4]</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="text-blue-600 dark:text-blue-400 font-semibold mb-2 flex items-center gap-2"><i class="fa-solid fa-tag"></i> 類型選擇器 (Type Selector)</div>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">選取該類型的所有 Widget 物件及其子類別。</p>
+                        <div class="bg-slate-900 text-slate-200 p-4 rounded-xl font-mono text-xs overflow-x-auto mb-6">
+<pre><code>QPushButton {
+    background-color: #f1f5f9;
+    color: #334155;
+    border-radius: 6px;
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-950/80 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <div class="text-[11px] font-mono text-slate-400 mb-2 flex items-center justify-between"><span>即時效果預覽</span><span class="text-emerald-500 font-semibold"><i class="fa-solid fa-circle text-[8px]"></i> 運行中</span></div>
+                        <div class="flex items-center justify-center py-3">
+                            <button class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-md border border-slate-300 text-sm transition">類型套用按鈕</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="text-blue-600 dark:text-blue-400 font-semibold mb-2 flex items-center gap-2"><i class="fa-solid fa-hashtag"></i> ID 選擇器 (Object Name)</div>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">透過 <code class="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">setObjectName()</code> 指定特定元件。</p>
+                        <div class="bg-slate-900 text-slate-200 p-4 rounded-xl font-mono text-xs overflow-x-auto mb-6">
+<pre><code>#submitBtn {
+    background-color: #2563eb;
+    color: #ffffff;
+    font-weight: bold;
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-950/80 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <div class="text-[11px] font-mono text-slate-400 mb-2 flex items-center justify-between"><span>即時效果預覽</span><span class="text-emerald-500 font-semibold"><i class="fa-solid fa-circle text-[8px]"></i> 運行中</span></div>
+                        <div class="flex items-center justify-center py-3">
+                            <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-md shadow-md text-sm transition">指定 ID 按鈕</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="text-blue-600 dark:text-blue-400 font-semibold mb-2 flex items-center gap-2"><i class="fa-solid fa-bolt"></i> 偽狀態 (Pseudo-states)</div>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">控制互動行為，如 hover、pressed、checked。</p>
+                        <div class="bg-slate-900 text-slate-200 p-4 rounded-xl font-mono text-xs overflow-x-auto mb-6">
+<pre><code>QPushButton:hover {
+    background-color: #1d4ed8;
+}
+QPushButton:pressed {
+    background-color: #1e40af;
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-950/80 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <div class="text-[11px] font-mono text-slate-400 mb-2 flex items-center justify-between"><span>即時效果預覽 (懸停/點擊)</span><span class="text-emerald-500 font-semibold"><i class="fa-solid fa-circle text-[8px]"></i> 運行中</span></div>
+                        <div class="flex items-center justify-center py-3">
+                            <button class="px-4 py-2 bg-slate-100 hover:bg-blue-700 active:bg-blue-800 hover:text-white active:text-white text-slate-700 font-medium rounded-md border border-slate-300 text-sm transition">懸停互動按鈕</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- PyQt6 原生風格自訂對話框 Modal 容器 -->
+    <div id="customModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
+        <div class="bg-slate-900 text-slate-100 rounded-2xl border border-slate-700 shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <!-- 視窗標題列 -->
+            <div class="bg-slate-800 px-4 py-3 flex items-center justify-between border-b border-slate-700">
+                <div class="flex items-center space-x-2">
+                    <span id="modalIcon" class="text-amber-400"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                    <span id="modalTitle" class="text-xs font-mono font-bold tracking-wide">警告標題</span>
+                </div>
+                <button onclick="closeCustomDialog()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <!-- 視窗內容區 -->
+            <div id="modalBody" class="p-6 text-sm text-slate-300">
+                這裡顯示彈窗內文...
+            </div>
+            <!-- 視窗按鈕區 -->
+            <div class="bg-slate-950 px-4 py-3 flex justify-end space-x-2 border-t border-slate-800">
+                <button onclick="closeCustomDialog()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold shadow transition">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 mt-20 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500 dark:text-slate-400">
+            <div>
+                <p>&copy; 2026 PyQt6 UI & QSS 設計指南. All rights reserved.</p>
+            </div>
+            <div class="flex items-center space-x-6">
+                <a href="#home-hero" onclick="showAllSections()" class="hover:text-blue-600 transition">首頁總覽</a>
+                <a href="#directory" onclick="focusSection('directory')" class="hover:text-blue-600 transition">元件資料庫</a>
+                <a href="#syntax" onclick="focusSection('syntax')" class="hover:text-blue-600 transition">QSS 語法</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Custom Dialog Modal, Component Switching & Live Code -->
+    <script>
+        function focusSection(sectionId) {
+            const sections = document.querySelectorAll('.page-section');
+            const hero = document.getElementById('home-hero');
+            hero.style.display = 'none';
+            sections.forEach(sec => {
+                if (sec.id === sectionId) sec.style.display = 'block';
+                else sec.style.display = 'none';
+            });
+        }
+
+        function showAllSections() {
+            const sections = document.querySelectorAll('.page-section');
+            const hero = document.getElementById('home-hero');
+            hero.style.display = 'block';
+            sections.forEach(sec => sec.style.display = 'block');
+        }
+
+        // 開啟 PyQt6 風格自訂對話框
+        function openCustomDialog(type) {
+            const modal = document.getElementById('customModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            const icon = document.getElementById('modalIcon');
+
+            if (type === 'warning') {
+                title.textContent = "系統警告 - QMessageBox";
+                icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-amber-400"></i>';
+                body.textContent = "⚠️ 系統發生未預期的錯誤！ (QMessageBox.warning 模擬)";
+            } else if (type === 'file') {
+                title.textContent = "選取檔案 - QFileDialog";
+                icon.innerHTML = '<i class="fa-solid fa-folder-open text-emerald-400"></i>';
+                body.textContent = "📂 已成功載入檔案：C:/Users/Project/main.py (QFileDialog 模擬)";
+            } else {
+                title.textContent = "子視窗 - QDialog";
+                icon.innerHTML = '<i class="fa-solid fa-window-maximize text-blue-400"></i>';
+                body.textContent = "💡 這是一個標準的 QDialog 子對話框互動頁面。";
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeCustomDialog() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        function switchCategoryTab(evt, tabId, typeDefault) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(c => c.classList.add('hidden'));
+
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(b => {
+                b.classList.remove('bg-blue-600', 'text-white', 'shadow-sm');
+                b.classList.add('text-slate-600', 'dark:text-slate-400', 'hover:bg-slate-100', 'dark:hover:bg-slate-800');
+            });
+
+            document.getElementById(tabId).classList.remove('hidden');
+            evt.currentTarget.classList.remove('text-slate-600', 'dark:text-slate-400', 'hover:bg-slate-100', 'dark:hover:bg-slate-800');
+            evt.currentTarget.classList.add('bg-blue-600', 'text-white', 'shadow-sm');
+
+            if(typeDefault === 'windows') selectComponent('QMainWindow');
+            else if(typeDefault === 'layouts') selectComponent('QVBoxLayout');
+            else if(typeDefault === 'buttons') selectComponent('QPushButton');
+            else if(typeDefault === 'inputs') selectComponent('QLineEdit');
+            else if(typeDefault === 'displays') selectComponent('QLabel');
+            else if(typeDefault === 'containers') selectComponent('QGroupBox');
+            else if(typeDefault === 'views') selectComponent('QTableWidget');
+        }
+
+        function selectComponent(className) {
+            document.getElementById('rightPanelTitle').textContent = `右側即時互動與 CODE：${className}`;
+            const previewBox = document.getElementById('componentPreviewBox');
+            const codeBox = document.getElementById('codeSnippetBox');
+
+            if (className === 'QMainWindow') {
+                previewBox.innerHTML = `
+                    <div class="text-center space-y-2 w-full">
+                        <div class="p-3 bg-slate-900 rounded-xl border border-slate-700 flex items-center justify-between">
+                            <span class="text-xs font-semibold">QMainWindow 主視窗</span>
+                            <button onclick="openCustomDialog('dialog')" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded text-xs transition">彈窗</button>
+                        </div>
+                    </div>`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QApplication, QMainWindow
+import sys
+
+app = QApplication(sys.argv)
+window = QMainWindow()
+window.setWindowTitle("QMainWindow 範例")
+window.resize(400, 300)
+window.show()
+sys.exit(app.exec())`;
+            } else if (className === 'QWidget') {
+                previewBox.innerHTML = `
+                    <div class="p-4 bg-slate-900 rounded-xl border border-slate-700 text-center text-xs text-blue-400">
+                        QWidget 基礎視窗容器
+                    </div>`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QApplication, QWidget
+import sys
+
+app = QApplication(sys.argv)
+widget = QWidget()
+widget.setWindowTitle("QWidget 視窗")
+widget.resize(300, 200)
+widget.show()
+sys.exit(app.exec())`;
+            } else if (className === 'QDialog') {
+                previewBox.innerHTML = `
+                    <div class="p-4 bg-slate-900 rounded-xl border border-amber-500/50 shadow-lg text-center space-y-2">
+                        <div class="text-xs font-bold text-amber-400">QDialog 子對話框</div>
+                        <button onclick="openCustomDialog('dialog')" class="px-3 py-1 bg-amber-600 text-white rounded text-xs">開啟對話框</button>
+                    </div>`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QDialog, QVBoxLayout, QPushButton
+
+dialog = QDialog()
+dialog.setWindowTitle("設定對話框")
+layout = QVBoxLayout()
+layout.addWidget(QPushButton("確認"))
+dialog.setLayout(layout)`;
+            } else if (className === 'QMessageBox') {
+                previewBox.innerHTML = `
+                    <button onclick="openCustomDialog('warning')" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-semibold shadow transition">
+                        點擊觸發 QMessageBox 彈窗
+                    </button>`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QMessageBox
+
+# 彈出警告對話框
+QMessageBox.warning(None, "警告標題", "系統發生未預期的錯誤！")`;
+            } else if (className === 'QFileDialog') {
+                previewBox.innerHTML = `
+                    <button onclick="openCustomDialog('file')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold shadow transition">
+                        開啟檔案選擇對話框
+                    </button>`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QFileDialog
+
+# 開啟檔案選擇對話框
+file_path, _ = QFileDialog.getOpenFileName(None, "選擇檔案", "", "All Files (*)")`;
+            } else if (className === 'QVBoxLayout') {
+                previewBox.innerHTML = `
+                    <div class="w-full space-y-2">
+                        <div class="text-[11px] text-slate-400 font-mono">QVBoxLayout (垂直排列)</div>
+                        <div class="p-2 bg-slate-900 rounded border border-slate-800 text-center text-xs text-blue-400">按鈕 1</div>
+                        <div class="p-2 bg-slate-900 rounded border border-slate-800 text-center text-xs text-blue-400">按鈕 2</div>
+                    </div>`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QWidget
+
+layout = QVBoxLayout()
+layout.addWidget(QPushButton("按鈕 1"))
+layout.addWidget(QPushButton("按鈕 2"))
+
+container = QWidget()
+container.setLayout(layout)`;
+            } else if (className === 'QHBoxLayout') {
+                previewBox.innerHTML = `
+                    <div class="w-full space-y-2">
+                        <div class="text-[11px] text-slate-400 font-mono">QHBoxLayout (水平排列)</div>
+                        <div class="flex gap-2">
+                            <div class="flex-1 p-2 bg-slate-900 rounded border border-slate-800 text-center text-xs text-blue-400">左側</div>
+                            <div class="flex-1 p-2 bg-slate-900 rounded border border-slate-800 text-center text-xs text-blue-400">右側</div>
+                        </div>
+                    </div>`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QHBoxLayout, QPushButton, QWidget
+
+layout = QHBoxLayout()
+layout.addWidget(QPushButton("左側按鈕"))
+layout.addWidget(QPushButton("右側按鈕"))`;
+            } else if (className === 'QGridLayout') {
+                previewBox.innerHTML = `
+                    <div class="grid grid-cols-2 gap-2 w-full text-xs text-center">
+                        <div class="p-2 bg-slate-900 rounded border border-slate-800 text-blue-400">(0,0)</div>
+                        <div class="p-2 bg-slate-900 rounded border border-slate-800 text-blue-400">(0,1)</div>
+                        <div class="p-2 bg-slate-900 rounded border border-slate-800 text-blue-400">(1,0)</div>
+                        <div class="p-2 bg-slate-900 rounded border border-slate-800 text-blue-400">(1,1)</div>
+                    </div>`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QGridLayout, QPushButton
+
+grid = QGridLayout()
+grid.addWidget(QPushButton("Grid (0,0)"), 0, 0)
+grid.addWidget(QPushButton("Grid (0,1)"), 0, 1)`;
+            } else if (className === 'QPushButton') {
+                previewBox.innerHTML = `
+                    <button class="py-2.5 px-6 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold shadow-lg">
+                        QPushButton 互動按鈕
+                    </button>`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QPushButton
+
+btn = QPushButton("確認送出")
+btn.setStyleSheet("background-color: #2563eb; color: white; border-radius: 8px; font-weight: bold; padding: 8px;")`;
+            } else if (className === 'QToolButton') {
+                previewBox.innerHTML = `
+                    <button class="py-2 px-4 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded border border-slate-700 text-xs font-semibold flex items-center gap-2">
+                        <i class="fa-solid fa-gear"></i> QToolButton 工具列按鈕
+                    </button>`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QToolButton
+from PyQt6.QtGui import QIcon
+
+tool_btn = QToolButton()
+tool_btn.setText("工具設定")
+tool_btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)`;
+            } else if (className === 'QCheckBox') {
+                previewBox.innerHTML = `
+                    <label class="flex items-center gap-2 text-xs cursor-pointer bg-slate-900 px-4 py-2 rounded-lg border border-slate-700">
+                        <input type="checkbox" checked class="w-4 h-4 rounded text-blue-600"> QCheckBox 接受條款
+                    </label>`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QCheckBox
+
+checkbox = QCheckBox("我同意相關授權條款")
+checkbox.setChecked(True)`;
+            } else if (className === 'QLineEdit') {
+                previewBox.innerHTML = `
+                    <input type="text" value="輸入框測試..." class="w-full px-3 py-2 bg-slate-900 border border-blue-500 rounded-lg text-xs text-slate-100 focus:outline-none">`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QLineEdit
+
+line_edit = QLineEdit()
+line_edit.setPlaceholderText("請在此輸入專案名稱...")
+line_edit.setStyleSheet("border: 1.5px solid #3b82f6; border-radius: 6px; padding: 6px;")`;
+            } else if (className === 'QSlider') {
+                previewBox.innerHTML = `
+                    <div class="w-full space-y-1">
+                        <div class="text-[11px] text-slate-400">音量調整滑桿</div>
+                        <input type="range" class="w-full accent-blue-500" value="65">
+                    </div>`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QSlider
+from PyQt6.QtCore import Qt
+
+slider = QSlider(Qt.Orientation.Horizontal)
+slider.setRange(0, 100)
+slider.setValue(65)`;
+            } else if (className === 'QLabel') {
+                previewBox.innerHTML = `
+                    <div class="p-3 bg-slate-900 rounded-xl border border-slate-700 text-xs text-blue-400 font-semibold">
+                        🏷️ QLabel：支援純文字與富文本 HTML 顯示
+                    </div>`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QLabel
+
+label = QLabel("<b>這是 </b><font color='blue'>QLabel</font> 標籤")`;
+            } else if (className === 'QProgressBar') {
+                previewBox.innerHTML = `
+                    <div class="w-full space-y-2">
+                        <div class="text-[11px] text-slate-400">讀取進度 80%</div>
+                        <div class="w-full bg-slate-900 rounded-full h-3 overflow-hidden border border-slate-800">
+                            <div class="bg-blue-500 h-full w-[80%] rounded-full"></div>
+                        </div>
+                    </div>`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QProgressBar
+
+progress = QProgressBar()
+progress.setValue(80)`;
+            } else if (className === 'QGroupBox') {
+                previewBox.innerHTML = `
+                    <div class="w-full p-3 rounded-xl border border-slate-700 bg-slate-900 relative">
+                        <span class="absolute -top-2.5 left-3 px-1.5 bg-slate-900 text-[10px] text-blue-400 font-semibold border border-slate-700 rounded">QGroupBox 標題群組</span>
+                        <div class="text-xs text-slate-400 pt-1">內部群組控制項區域</div>
+                    </div>`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QGroupBox, QVBoxLayout
+
+group = QGroupBox("進階設定群組")
+layout = QVBoxLayout()
+group.setLayout(layout)`;
+            } else if (className === 'QTabWidget') {
+                previewBox.innerHTML = `
+                    <div class="w-full bg-slate-900 rounded-xl border border-slate-700 overflow-hidden">
+                        <div class="flex border-b border-slate-800 text-xs">
+                            <div class="px-3 py-1.5 bg-blue-600 text-white font-medium">分頁一</div>
+                            <div class="px-3 py-1.5 text-slate-400">分頁二</div>
+                        </div>
+                        <div class="p-3 text-xs text-slate-300">分頁標籤容器內容區域</div>
+                    </div>`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QTabWidget, QWidget
+
+tabs = QTabWidget()
+tabs.addTab(QWidget(), "分頁一")
+tabs.addTab(QWidget(), "分頁二")`;
+            } else if (className === 'QTableWidget') {
+                previewBox.innerHTML = `
+                    <div class="w-full bg-slate-900 rounded-lg border border-slate-700 overflow-hidden text-[11px]">
+                        <div class="bg-slate-800 p-1.5 font-semibold grid grid-cols-2 border-b border-slate-700"><span>欄位 A</span><span>欄位 B</span></div>
+                        <div class="p-1.5 grid grid-cols-2 text-slate-300"><span>資料 1</span><span>數值 100</span></div>
+                    </div>`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem
+
+table = QTableWidget(2, 2)
+table.setItem(0, 0, QTableWidgetItem("項目 1"))`;
+            } else if (className === 'QTreeWidget') {
+                previewBox.innerHTML = `
+                    <div class="w-full p-2 bg-slate-900 rounded-lg border border-slate-700 text-xs text-slate-300 space-y-1">
+                        <div>📁 根目錄 (Root)</div>
+                        <div class="pl-4">├── 📄 子檔案 A.py</div>
+                        <div class="pl-4">└── 📄 子檔案 B.py</div>
+                    </div>`;
+                codeBox.textContent = `from PyQt6.QtWidgets import QTreeWidget, QTreeWidgetItem
+
+tree = QTreeWidget()
+root = QTreeWidgetItem(tree, ["根目錄"])
+child = QTreeWidgetItem(root, ["子檔案"])`;
+            }
+        }
+
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+
+        themeToggle.addEventListener('click', () => {
+            if (htmlElement.classList.contains('dark')) {
+                htmlElement.classList.remove('dark');
+            } else {
+                htmlElement.classList.add('dark');
+            }
+        });
+
+        function setTheme(theme) {
+            const previewContainer = document.getElementById('previewContainer');
+            const windowTitle = document.getElementById('windowTitle');
+            const themeBadge = document.getElementById('themeBadge');
+            const mockBtnPrimary = document.getElementById('mockBtnPrimary');
+            const mockProgressBar = document.getElementById('mockProgressBar');
+            const mockInput = document.getElementById('mockInput');
+            const qssCodeOutput = document.getElementById('qssCodeOutput');
+
+            ['tech', 'minimal', 'warm'].forEach(t => {
+                const btn = document.getElementById(`btn-${t}`);
+                btn.className = "px-5 py-2.5 rounded-xl font-medium text-sm transition flex items-center gap-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800";
+            });
+
+            const activeBtn = document.getElementById(`btn-${theme}`);
+
+            if (theme === 'tech') {
+                activeBtn.className = "px-5 py-2.5 rounded-xl font-medium text-sm transition flex items-center gap-2 bg-blue-600 text-white shadow-md shadow-blue-600/20";
+                previewContainer.className = "rounded-3xl p-6 sm:p-10 border transition-all duration-300 bg-slate-900 text-slate-100 border-blue-500/40 shadow-2xl";
+                windowTitle.textContent = "PyQt6 App - 科技藍風格";
+                themeBadge.textContent = "Active: Tech Blue";
+                mockBtnPrimary.className = "flex-1 py-3 px-4 rounded-xl font-medium text-sm transition shadow-lg bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30";
+                mockProgressBar.className = "h-full rounded-full bg-blue-500 transition-all duration-500";
+                mockInput.style.borderColor = "#3b82f6";
+                
+                qssCodeOutput.textContent = `/* 科技藍風格 QSS */
+QPushButton {
+    background-color: #2563eb;
+    color: #ffffff;
+    border-radius: 8px;
+    font-weight: bold;
+    padding: 10px;
+}
+QPushButton:hover {
+    background-color: #1d4ed8;
+}
+QLineEdit {
+    border: 1.5px solid #3b82f6;
+    border-radius: 8px;
+    background-color: #020617;
+    color: #ffffff;
+    padding: 8px;
+}`;
+            } else if (theme === 'minimal') {
+                activeBtn.className = "px-5 py-2.5 rounded-xl font-medium text-sm transition flex items-center gap-2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md";
+                previewContainer.className = "rounded-3xl p-6 sm:p-10 border transition-all duration-300 bg-zinc-950 text-zinc-100 border-zinc-700 shadow-2xl";
+                windowTitle.textContent = "PyQt6 App - 極簡黑白風格";
+                themeBadge.textContent = "Active: Minimal Dark";
+                mockBtnPrimary.className = "flex-1 py-3 px-4 rounded-xl font-medium text-sm transition shadow-lg bg-zinc-100 hover:bg-white text-zinc-950";
+                mockProgressBar.className = "h-full rounded-full bg-zinc-300 transition-all duration-500";
+                mockInput.style.borderColor = "#52525b";
+
+                qssCodeOutput.textContent = `/* 極簡黑白風格 QSS */
+QPushButton {
+    background-color: #f4f4f5;
+    color: #09090b;
+    border-radius: 6px;
+    font-weight: 600;
+    padding: 10px;
+}
+QPushButton:hover {
+    background-color: #ffffff;
+}
+QLineEdit {
+    border: 1.5px solid #52525b;
+    border-radius: 6px;
+    background-color: #09090b;
+    color: #f4f4f5;
+    padding: 8px;
+}`;
+            } else if (theme === 'warm') {
+                activeBtn.className = "px-5 py-2.5 rounded-xl font-medium text-sm transition flex items-center gap-2 bg-amber-600 text-white shadow-md shadow-amber-600/20";
+                previewContainer.className = "rounded-3xl p-6 sm:p-10 border transition-all duration-300 bg-stone-900 text-stone-100 border-amber-500/40 shadow-2xl";
+                windowTitle.textContent = "PyQt6 App - 溫潤暖色風格[cite: 5]";
+                themeBadge.textContent = "Active: Warm Orange[cite: 5]";
+                mockBtnPrimary.className = "flex-1 py-3 px-4 rounded-xl font-medium text-sm transition shadow-lg bg-amber-600 hover:bg-amber-500 text-white shadow-amber-600/30";
+                mockProgressBar.className = "h-full rounded-full bg-amber-500 transition-all duration-500";
+                mockInput.style.borderColor = "#f59e0b";
+
+                qssCodeOutput.textContent = `/* 溫潤暖色風格 QSS */
+QPushButton {
+    background-color: #d97706;
+    color: #ffffff;
+    border-radius: 12px;
+    font-weight: bold;
+    padding: 10px;
+}
+QPushButton:hover {
+    background-color: #b45309;
+}
+QLineEdit {
+    border: 1.5px solid #d97706;
+    border-radius: 12px;
+    background-color: #1c1917;
+    color: #f5f5f4;
+    padding: 8px;
+}`;
+            }
+        }
+    </script>
+</body>
+</html>

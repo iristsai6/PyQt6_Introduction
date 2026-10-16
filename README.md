@@ -32,7 +32,7 @@
 
 ## 📦 快速開始與使用方式
 
-點擊此連結開啟網站 > PyQt6_Introduction[]
+點擊此連結開啟網站 > PyQt6_Introduction[https://iristsai6.github.io/PyQt6_Introduction/]
 
 或將本專案的 index.html 檔案下載至您的電腦本機中
 
